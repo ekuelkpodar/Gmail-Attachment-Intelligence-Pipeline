@@ -14,20 +14,25 @@ This Google Apps Script project automates the ingestion, classification, extract
 
 ## High-Level Architecture
 
-```
-Gmail (Labels / Search)
-   ↓
-Google Apps Script (Time Trigger)
-   ↓
-Attachment Extraction & Hashing
-   ↓
-Temporary Drive Staging (_intake)
-   ↓
-LLM Classification + Field Extraction (via OpenRouter)
-   ↓
-Confidence-Based Drive Routing (Documents/)
-   ↓
-Sheets Metadata Index (Control Plane)
+```mermaid
+graph TD
+    A[Gmail] -- Unprocessed Attachments --> B{Google Apps Script};
+    B -- Time-based Trigger --> C[Attachment Processing];
+    subgraph C
+        direction LR
+        C1[Extract Attachment] --> C2[SHA256 Hash];
+        C2 --> C3{Deduplicate};
+    end
+    C3 -- Unique Attachment --> D[Drive Staging: _intake];
+    D --> E[Text Extraction];
+    E -- Extracted Text --> F{LLM Classification via OpenRouter};
+    F -- JSON Response --> G{Confidence-Based Routing};
+    G -- High Confidence --> H[Drive Storage: Documents/...];
+    G -- Low Confidence --> I[Drive Storage: Review];
+    G -- Error --> J[Apply 'attachment_error' Label];
+    H --> K[Log Metadata to Google Sheet];
+    I --> K;
+    J --> K;
 ```
 
 ## Setup and Configuration
