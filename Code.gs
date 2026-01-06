@@ -9,7 +9,7 @@ const REVIEW_LABEL = "attachment_review";
 const GMAIL_SEARCH_QUERY = "has:attachment -label:processed_attachments -label:attachment_error";
 const INTAKE_FOLDER_NAME = "_intake";
 const ROOT_FOLDER_NAME = "Documents";
-const LLM_API_ENDPOINT = "https://api.openai.com/v1/chat/completions"; // Example for OpenAI
+const LLM_API_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 const SPREADSHEET_ID = ""; // TODO: Add your spreadsheet ID here
 const SHEET_NAME = "Metadata";
 const SHEET_HEADERS = [
@@ -255,10 +255,10 @@ function extractText(file) {
  */
 function classifyAndExtract(text) {
   const scriptProperties = PropertiesService.getScriptProperties();
-  const llmApiKey = scriptProperties.getProperty('LLM_API_KEY');
+  const llmApiKey = scriptProperties.getProperty('OPENROUTER_API_KEY');
 
   if (!llmApiKey) {
-    console.error("LLM_API_KEY not found in script properties. Please set it.");
+    console.error("OPENROUTER_API_KEY not found in script properties. Please set it.");
     return null;
   }
 
@@ -301,7 +301,9 @@ Output JSON schema:
     method: "post",
     contentType: "application/json",
     headers: {
-      Authorization: "Bearer " + llmApiKey,
+      "Authorization": "Bearer " + llmApiKey,
+      "HTTP-Referer": "https://github.com/jules-dot-ai/gmail-attachment-intelligence-pipeline", // Replace with your project URL
+      "X-Title": "Gmail Attachment Intelligence Pipeline" // Replace with your project title
     },
     payload: JSON.stringify(payload),
     muteHttpExceptions: true,
